@@ -4,6 +4,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import model.exceptions.DomainException;
+
 public class Reserva {
 
 	private Integer numeroQuarto;
@@ -15,6 +17,10 @@ public class Reserva {
 		this.numeroQuarto = numeroQuarto;
 		this.checkIn = checkin;
 		this.checkOut = checkout;
+		
+		if(!checkOut.after(checkIn)) {
+			throw new DomainException("A data de Check-out nao pode ser anterior a de Check-in");
+		}
 	}
 
 	public Integer getNumeroQuarto() {
@@ -39,9 +45,15 @@ public class Reserva {
 		return TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
 	}
 	
-	public void updateDatas(Date checkIn, Date checkOut) {
-		this.checkIn = checkIn;
-		this.checkOut = checkOut;
+	//metodo que pode lançar ume exceçao por isso o throws na assinatura
+	public void atualizaDatas(Date checkIn, Date checkOut){
+		Date now = new Date();
+		if(checkIn.before(now) || checkOut.before(now)) {
+			throw new DomainException("As Datas precisam estar dentro do ano atual/posteriores para ser atualizada");
+		}
+		if(!checkOut.after(checkIn)) {
+			throw new DomainException("A data de Check-out nao pode ser anterior a de Check-in");
+		}
 	}
 	@Override
 	public String toString() {
@@ -53,6 +65,6 @@ public class Reserva {
 			 + sdf.format(checkOut)
 			 + ", "
 			 + duracao()
-			 + "noites";
+			 + " noites";
 	}
 }
